@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import SideBar from "@/components/SideBar";
 
 export const metadata: Metadata = {
@@ -7,22 +6,21 @@ export const metadata: Metadata = {
   description: "BERNANDA PIKAT SMKN 1 KATAPANG",
 };
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-});
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <main className={`${poppins.className} antialiased`}>
-      <div className="flex">
-        <SideBar />
+    <div className="flex min-h-screen bg-slate-50 bg-main">
+      <SideBar />
+      <main
+        className="flex-1 w-full transition-all duration-300
+        p-4 pt-16 md:p-8 md:ml-64 
+      "
+      >
         {children}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
