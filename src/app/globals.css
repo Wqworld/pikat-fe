@@ -136,6 +136,15 @@
   background-position: center;
 }
 
+.bg-jadwal{
+  background-image: url('/bg_jadwal.png');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
 .bg-jam{
   background-image: url('/backgroundJam.png');
   background-repeat: no-repeat;

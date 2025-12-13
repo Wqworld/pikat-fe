@@ -55,7 +55,7 @@ export default function ReportPage() {
           </SelectContent>
         </Select>
       </div>
-      <Table className="bg-[#FFFFFF]/90 shadow-xl rounded-lg">
+      <Table className="drop-shadow-2xl rounded-lg">
         <TableHeader>
           <TableRow>
             <TableHead className="drop-shadow-2xl text-gray-400 font-bold text-xl">

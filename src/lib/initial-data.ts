@@ -138,3 +138,51 @@ export const notesData = [
     },
     
   ];
+
+  export const jadwalPiketData = [
+  {
+    hari: "Senin",
+    petugas: [
+      { id: 1, nama: "Pak Budi Santoso" },
+      { id: 2, nama: "Bu Siti Aminah" },
+      { id: 3, nama: "Pak Joko Anwar" },
+      { id: 4, nama: "Bu Rina Nose" },
+    ],
+  },
+  {
+    hari: "Selasa",
+    petugas: [
+      { id: 5, nama: "Pak Dedi Corbuzier" },
+      { id: 6, nama: "Bu Susi Pudjiastuti" },
+      { id: 7, nama: "Pak Ganjar" },
+      { id: 8, nama: "Bu Megawati" },
+    ],
+  },
+  {
+    hari: "Rabu",
+    petugas: [
+      { id: 9, nama: "Pak Anies Baswedan" },
+      { id: 10, nama: "Pak Prabowo" },
+      { id: 11, nama: "Bu Puan Maharani" },
+      { id: 12, nama: "Pak Erick Thohir" },
+    ],
+  },
+  {
+    hari: "Kamis",
+    petugas: [
+      { id: 13, nama: "Pak Sandiaga Uno" },
+      { id: 14, nama: "Bu Sri Mulyani" },
+      { id: 15, nama: "Pak Basuki" },
+      { id: 16, nama: "Bu Risma" },
+    ],
+  },
+  {
+    hari: "Jumat",
+    petugas: [
+      { id: 17, nama: "Pak Ridwan Kamil" },
+      { id: 18, nama: "Bu Khofifah" },
+      { id: 19, nama: "Pak Mahfud MD" },
+      { id: 20, nama: "Bu Retno Marsudi" },
+    ],
+  },
+];
