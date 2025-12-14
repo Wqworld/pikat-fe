@@ -114,11 +114,11 @@ export default function DashPage() {
           </Card>
         </div>
         <div className="space-y-5 flex md:flex-col flex-col md:space-y-5 flex-1 min-w-0">
-          <div className="w-full h-32 bg-[#00786E]/60 shadow-md rounded-lg p-5 flex justify-center items-center ">
-            <p className="text-9xl font-bold text-white">{formattedTime}</p>
+          <div className="w-full h-32 bg-[#00786E]/60 shadow-md rounded-lg p-8 flex justify-center items-center ">
+            <p className="text-8xl font-bold text-white">{formattedTime}</p>
             <div className="ml-10 flex flex-col">
-              <p className="text-6xl font-bold text-white">{formattedDate}</p>
-              <p className="text-6xl font-bold text-white">{formattedYear}</p>
+              <p className="text-5xl font-bold text-white">{formattedDate}</p>
+              <p className="text-5xl font-bold text-white">{formattedYear}</p>
             </div>
           </div>
 
