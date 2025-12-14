@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -13,18 +13,24 @@ import {
   Users2Icon,
   Edit,
   Eye,
+  ChevronDown, // Import icon panah
+  ChevronUp,
 } from "lucide-react";
 import api from "@/lib/axios";
 import Image from "next/image";
+import { ScrollArea } from "./ui/scroll-area";
 
 export default function SideBar() {
   const pathname = usePathname();
   const router = useRouter();
 
-
   const [isOpen, setIsOpen] = useState(false);
 
-   useEffect(() => {
+  // State untuk melacak menu dropdown mana yang terbuka (berdasarkan nama menu)
+  const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+
+  // Handle Resize untuk Mobile/Desktop
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setIsOpen(true);
@@ -35,6 +41,19 @@ export default function SideBar() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Auto-open submenu jika berada di halaman anak saat refresh
+  useEffect(() => {
+    menuItems.forEach((item) => {
+      if (item.subLinks) {
+        const isActive = item.subLinks.some((sub) => pathname === sub.href);
+        if (isActive) {
+          setOpenSubMenu(item.name);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -43,6 +62,14 @@ export default function SideBar() {
     } catch (e) {}
     localStorage.clear();
     window.location.href = "/login";
+  };
+
+  const toggleSubMenu = (menuName: string) => {
+    if (openSubMenu === menuName) {
+      setOpenSubMenu(null); // Tutup jika sudah terbuka
+    } else {
+      setOpenSubMenu(menuName); // Buka menu ini
+    }
   };
 
   const menuItems = [
@@ -65,20 +92,28 @@ export default function SideBar() {
       roles: ["GURU_PIKET", "ADMIN"],
     },
     {
-      name: "Tambah Data",
-      href: "/add-data",
-      icon: Users2Icon,
-      roles: ["GURU_MAPEL"],
-    },
-    {
       name: "Buat Surat Izin",
       href: "/license",
       icon: Edit,
       roles: ["GURU_MAPEL"],
     },
     {
-      name: "Lihat Data",
+      name: "Kelola Data",
       href: "/view-data",
+      subLinks: [
+        {
+          name: "Data Guru",
+          href: "/view-data/teacher-data",
+        },
+        {
+          name: "Data Mapel",
+          href: "/view-data/mapel-data",
+        },
+        {
+          name: "Data Jadwal Piket",
+          href: "/view-data/piket-jadwal-data",
+        },
+      ],
       icon: Eye,
       roles: ["ADMIN"],
     },
@@ -92,9 +127,10 @@ export default function SideBar() {
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
+
       {isOpen && (
         <div
-          className="fixed inset-0  z-40 md:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-40 md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -118,8 +154,91 @@ export default function SideBar() {
           />
         </div>
 
-        <nav className="flex-1 space-y-2 py-4">
+        <nav className="flex-1 space-y-2 py-4 overflow-y-auto">
           {menuItems.map((item) => {
+            const hasSubLinks = item.subLinks && item.subLinks.length > 0;
+
+            const isParentActive = hasSubLinks
+              ? item.subLinks?.some((sub) => pathname === sub.href)
+              : pathname === item.href;
+
+            if (hasSubLinks) {
+              return (
+                <div key={item.name} className="flex flex-col">
+                  <button
+                    onClick={() => toggleSubMenu(item.name)}
+                    className={`relative flex items-center justify-between px-10 py-3 transition-all duration-200 group w-full ${
+                      isParentActive
+                        ? "text-[#007D72]"
+                        : "text-slate-800 hover:bg-[#007D72] hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      {isParentActive && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[80%] w-1.5 bg-[#007D72] rounded-full" />
+                      )}
+                      <item.icon
+                        size={25}
+                        className={`mr-2 ${
+                          isParentActive
+                            ? "text-[#007D72]"
+                            : "text-slate-500 group-hover:text-white"
+                        }`}
+                      />
+                      <span className="font-medium text-md">{item.name}</span>
+                    </div>
+                    {openSubMenu === item.name ? (
+                      <ChevronUp
+                        size={18}
+                        className={
+                          isParentActive
+                            ? "text-[#007D72]"
+                            : "text-slate-500 group-hover:text-white"
+                        }
+                      />
+                    ) : (
+                      <ChevronDown
+                        size={18}
+                        className={
+                          isParentActive
+                            ? "text-[#007D72]"
+                            : "text-slate-500 group-hover:text-white"
+                        }
+                      />
+                    )}
+                  </button>
+
+                  {openSubMenu === item.name && (
+                    <div className="bg-slate-50/50 py-1">
+                      <ScrollArea className="">
+                        {item.subLinks?.map((subItem) => {
+                          const isSubActive = pathname === subItem.href;
+                          return (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`flex items-center pl-20 pr-4 py-2 text-sm transition-all duration-200 ${
+                                isSubActive
+                                  ? "text-[#007D72] font-bold"
+                                  : "text-slate-500 hover:text-[#007D72]"
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full mr-2 ${
+                                  isSubActive ? "bg-[#007D72]" : "bg-slate-300"
+                                }`}
+                              ></span>
+                              {subItem.name}
+                            </Link>
+                          );
+                        })}
+                      </ScrollArea>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
             const isActive = pathname === item.href;
             return (
               <Link
@@ -128,7 +247,7 @@ export default function SideBar() {
                 className={`relative flex items-center px-10 py-3 transition-all duration-200 group ${
                   isActive
                     ? "text-[#007D72] "
-                    : "text-slate-800 hover:bg-[#007D72] hover:text-white hover:translate-x-1"
+                    : "text-slate-800 hover:bg-[#007D72] hover:text-white "
                 }`}
               >
                 {isActive && (
@@ -138,7 +257,7 @@ export default function SideBar() {
                 <item.icon
                   size={25}
                   className={`
-                     mr-2
+                      mr-2
                     ${
                       isActive
                         ? "text-[#007D72]"
@@ -157,7 +276,7 @@ export default function SideBar() {
             onClick={handleLogout}
             className="flex items-center justify-center gap-2 px-4 py-2 w-full  text-slate-600 hover:bg-red-600 hover:text-white rounded-lg transition-all text-xl font-medium duration-500"
           >
-            <LogOut size={22} /> 
+            <LogOut size={22} />
             <p className="font-bold">Logout</p>
           </button>
         </div>
