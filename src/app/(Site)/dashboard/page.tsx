@@ -82,7 +82,6 @@ interface Assignment {
 export default function DashPage() {
   const router = useRouter();
   
-  // State Data
   const [user, setUser] = useState<UserAuth>();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [piketStaff, setPiketStaff] = useState<Staff[]>([]);
@@ -99,7 +98,6 @@ export default function DashPage() {
     });
   };
 
-  // 1. Effect Jam (Clock)
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date());
@@ -107,28 +105,26 @@ export default function DashPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Effect Fetch Data
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoadingData(true);
       try {
-        // Coba ambil Auth User
+
         try {
             const authRes = await api.get("/auth/me");
             setUser(authRes.data);
         } catch (e) {
             console.warn("Gagal auth check (mungkin belum login/backend mati)");
-            // Opsional: router.replace("/login"); 
+            //router.replace("/login"); 
         }
 
-        // Ambil Data Dashboard secara Paralel
         const [izinRes, piketRes, tugasRes] = await Promise.allSettled([
             api.get("/student-permits?limit=5"),         
             api.get("/piket-schedules"),                 
             api.get("/teacher-assignments")         
         ]);
 
-        // Cek hasil promise satu per satu (Promise.allSettled biar ga crash kalau satu error)
         if (izinRes.status === 'fulfilled') setPermissions(izinRes.value.data.data || []);
         if (piketRes.status === 'fulfilled') setPiketStaff(piketRes.value.data.data || []);
         if (tugasRes.status === 'fulfilled') setAssignments(tugasRes.value.data.data || []);
@@ -143,7 +139,6 @@ export default function DashPage() {
     fetchDashboardData();
   }, []);
 
-  // Format Waktu Dashboard
   const formattedTime = time.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }).replace(".", ".");
   const formattedDate = time.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" });
   const formattedYear = time.getFullYear();
@@ -153,8 +148,7 @@ export default function DashPage() {
       <h1 className="text-4xl font-bold text-gray-600 drop-shadow-2xl">
         Dashboard {user ? `, ${user.fullname || user.username}` : ""}
       </h1>
-      
-      {/* --- TABEL IZIN TERBARU --- */}
+    
       <h2 className="md:text-xl text-md text-black/30 font-bold">
         Laporan Izin Terbaru
       </h2>
@@ -173,7 +167,6 @@ export default function DashPage() {
             {permissions.length > 0 ? (
                 permissions.map((permission) => (
                 <TableRow key={permission.id}>
-                    {/* Perbaikan Variable Mapping disini 👇 */}
                     <TableCell className="text-gray-600 font-medium text-lg">
                         {formatTanggalIndo(permission.created_at)}
                     </TableCell>
@@ -203,7 +196,7 @@ export default function DashPage() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-5 mt-5 flex-1 min-h-0">
-        {/* --- PETUGAS PIKET --- */}
+        
         <div className="flex flex-col md:w-1/3">
           <h2 className="md:text-xl text-md text-black/30 font-bold ml-1">
             Petugas Piket Hari Ini
@@ -215,7 +208,6 @@ export default function DashPage() {
                   {piketStaff.length > 0 ? (
                       piketStaff.map((staff) => (
                         <div key={staff.id} className="bg-[#CAECE9] p-3 rounded-lg w-full flex items-center shadow-sm">
-                          {/* Perbaikan Variable Mapping disini 👇 */}
                           <p className="text-gray-600 font-medium text-lg drop-shadow-sm">
                             {staff.teacher?.fullname || "Guru"}
                           </p>
@@ -232,7 +224,6 @@ export default function DashPage() {
           </Card>
         </div>
 
-        {/* --- JAM & TUGAS GURU --- */}
         <div className="space-y-5 flex md:flex-col flex-col md:space-y-5 flex-1 min-w-0">
           <div className="w-full h-32 bg-[#00786E]/60 shadow-md rounded-lg p-8 flex justify-center items-center ">
             <p className="text-6xl md:text-8xl font-bold text-white">{formattedTime}</p>
