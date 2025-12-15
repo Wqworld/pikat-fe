@@ -12,17 +12,48 @@ import {
 } from "@/components/ui/table";
 import { notesData, permissionData, staffData } from "@/lib/initial-data";
 import { BookOpen, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
+import { AxiosError } from "axios";
 
 export default function DashPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
   const [time, setTime] = useState(new Date());
+  const [loadingData, setLoadingData] = useState(true);
 
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date());
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+
+        const authRes = await api.get("/auth/me");
+        setUser(authRes.data);
+
+
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const status = error.response?.status;
+          if (status === 401) {
+            router.replace("/login");
+          } else {
+            console.error("Fetch Error:", error);
+          }
+        }
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [router]);
 
   const formattedTime = time
     .toLocaleTimeString("id-ID", {

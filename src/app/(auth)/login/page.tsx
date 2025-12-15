@@ -7,17 +7,23 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
-import { toast } from "sonner"; 
-import { Eye, EyeOff, Loader2, School } from "lucide-react";
+import { toast } from "sonner";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Image from "next/image";
 
 const loginSchema = z.object({
-  email: z.string().email("Format email tidak valid (harus @...)"),
+  username: z.string().min(1, "Username wajib diisi"),
   password: z.string().min(1, "Password wajib diisi"),
 });
 
@@ -35,30 +41,26 @@ export default function LoginPage() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
-
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
       await api.post("/auth/login", data);
 
       toast.success("Login Berhasil! Mengalihkan...");
-      
-      setTimeout(() => {
-        router.replace("/dashboard");
-      }, 1000);
-
+      router.refresh();
+      router.replace("/dashboard");
     } catch (error: unknown) {
       console.error("Login Error:", error);
-      let pesan = "Gagal Login, periksa email/password";
-      
+      let pesan = "Gagal Login, periksa username/password";
+
       if (error instanceof AxiosError) {
         pesan = error.response?.data?.message || pesan;
       }
-      
+
       toast.error(pesan);
     } finally {
       setLoading(false);
@@ -70,28 +72,41 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto flex items-center justify-center ">
-            <Image src="/Logo.png" alt="Logo SMKN 1 Katapang" width={50} height={50} />
+            <Image
+              src="/Logo.png"
+              alt="Logo SMKN 1 Katapang"
+              width={50}
+              height={50}
+            />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-800">Login</CardTitle>
-          <CardDescription>Masuk untuk mengelola izin dan tugas</CardDescription>
+          <CardTitle className="text-2xl font-bold text-slate-800">
+            Login
+          </CardTitle>
+          <CardDescription>
+            Masuk untuk mengelola izin dan tugas
+          </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="nama@sekolah.sch.id"
+                id="username"
+                type="text"
+                placeholder="Username Anda"
+                autoComplete="username" 
                 disabled={loading}
-                {...register("email")} 
-                className={errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}
+                {...register("username")}
+                className={
+                  errors.username
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
               />
-              {errors.email && (
+              {errors.username && (
                 <p className="text-xs text-red-500 font-medium animate-pulse">
-                  {errors.email.message}
+                  {errors.username.message}
                 </p>
               )}
             </div>
@@ -105,7 +120,11 @@ export default function LoginPage() {
                   placeholder="Masukkan password"
                   disabled={loading}
                   {...register("password")}
-                  className={`pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                  className={`pr-10 ${
+                    errors.password
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }`}
                 />
                 <button
                   type="button"
@@ -123,8 +142,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-[#045339e6] hover:bg-[#045339e6]/90 text0 font-bold transition-all"
               disabled={loading}
             >
@@ -136,7 +155,6 @@ export default function LoginPage() {
                 "Masuk Sekarang"
               )}
             </Button>
-
           </form>
         </CardContent>
       </Card>
