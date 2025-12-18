@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import api from "@/lib/axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -31,8 +32,8 @@ export default function ReportPage() {
     const fetchData = async () => {
       try {
 
-        const res = await fetch("/piket-schedules"); 
-        const json = await res.json();
+        const res = await api.get("/piket-schedules"); 
+        const json = await res.data;
 
         if (json.success) {
 

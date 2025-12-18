@@ -20,8 +20,17 @@ import api from "@/lib/axios";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
 
+interface UserAuth {
+  id: number;
+  username: string;
+  fullname: string;
+  roles: string[];
+}
+
+
 export default function SideBar() {
   const pathname = usePathname();
+  const [user, setUser] = useState<UserAuth>();
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +50,18 @@ export default function SideBar() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/auth/me");
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+    fetchUser();
   }, []);
 
   // Auto-open submenu jika berada di halaman anak saat refresh
