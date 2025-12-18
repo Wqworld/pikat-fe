@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/lib/axios";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -22,40 +19,41 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 
-const loginSchema = z.object({
-  username: z.string().min(1, "Username wajib diisi"),
-  password: z.string().min(1, "Password wajib diisi"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-
 export default function LoginPage() {
   const router = useRouter();
+
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-  const onSubmit = async (data: LoginForm) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.username || !form.password) {
+      toast.error("Username dan password wajib diisi");
+      return;
+    }
+
     setLoading(true);
     try {
-      await api.post("/auth/login", data);
+      await api.post("/auth/login", form, {
+        withCredentials: true,
+      });
 
-      toast.success("Login Berhasil! Mengalihkan...");
-      router.refresh();
+      toast.success("Login berhasil!");
       router.replace("/dashboard");
-    } catch (error: unknown) {
-      console.error("Login Error:", error);
-      let pesan = "Gagal Login, periksa username/password";
+      router.refresh();
+    } catch (error) {
+      let pesan = "Gagal login";
 
       if (error instanceof AxiosError) {
         pesan = error.response?.data?.message || pesan;
@@ -71,88 +69,55 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4 bg-smk">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto flex items-center justify-center ">
-            <Image
-              src="/Logo.png"
-              alt="Logo SMKN 1 Katapang"
-              width={50}
-              height={50}
-            />
+          <div className="mx-auto">
+            <Image src="/Logo.png" alt="Logo" width={50} height={50} />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-800">
-            Login
-          </CardTitle>
-          <CardDescription>
-            Masuk untuk mengelola izin dan tugas
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardDescription>Masuk untuk mengelola izin dan tugas</CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label>Username</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="Username Anda"
-                autoComplete="username" 
+                name="username"
+                value={form.username}
+                onChange={handleChange}
                 disabled={loading}
-                {...register("username")}
-                className={
-                  errors.username
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : ""
-                }
+                placeholder="Username"
               />
-              {errors.username && (
-                <p className="text-xs text-red-500 font-medium animate-pulse">
-                  {errors.username.message}
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label>Password</Label>
               <div className="relative">
                 <Input
-                  id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Masukkan password"
+                  value={form.password}
+                  onChange={handleChange}
                   disabled={loading}
-                  {...register("password")}
-                  className={`pr-10 ${
-                    errors.password
-                      ? "border-red-500 focus-visible:ring-red-500"
-                      : ""
-                  }`}
+                  placeholder="Password"
+                  className="pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
-                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-xs text-red-500 font-medium animate-pulse">
-                  {errors.password.message}
-                </p>
-              )}
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-[#045339e6] hover:bg-[#045339e6]/90 text0 font-bold transition-all"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Memproses...
                 </>
               ) : (
-                "Masuk Sekarang"
+                "Masuk"
               )}
             </Button>
           </form>
