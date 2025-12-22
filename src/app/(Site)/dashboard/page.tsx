@@ -139,19 +139,26 @@ export default function DashPage() {
     }
   };
 
-  const processPermit = async (id: number, action: "approved" | "rejected") => {
+  const processPermit = async (
+    id: number,
+    action: "PENDING_PIKET" | "REJECTED"
+  ) => {
     try {
       await api.patch(
         `/student-permits/${id}/process/mapel`,
-        { action },
+        { status: action },
         { withCredentials: true }
       );
 
-      toast.success(action === "approved" ? "Izin disetujui" : "Izin ditolak");
+      toast.success(
+        action === "PENDING_PIKET" ? "Izin disetujui" : "Izin ditolak"
+      );
 
       fetchMapelPermits();
     } catch (err) {
-      toast.error("Gagal memproses izin");
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data.message);
+      }
     }
   };
 
@@ -200,7 +207,6 @@ export default function DashPage() {
 
         if (piketRes.status === "fulfilled")
           setPiketStaff(piketRes.value.data.data || []);
-        console.log(piketRes);
 
         if (tugasRes.status === "fulfilled")
           setAssignments(tugasRes.value.data.data || []);
@@ -257,9 +263,9 @@ export default function DashPage() {
           <h2 className="md:text-xl text-md text-black/30 font-bold">
             Laporan Izin Terbaru
           </h2>
-          <div className="overflow-auto max-h-[300px]">
+          <div className="overflow-auto max-h-[270px]">
             <Table className="bg-[#FFFFFF]/90 shadow-xl rounded-lg">
-              <TableHeader>
+              <TableHeader className="sticky z-10 bg-[#FFFFFF]/90 top-0">
                 <TableRow>
                   <TableHead className="drop-shadow-2xl text-gray-400 font-bold text-xl">
                     Waktu
@@ -280,7 +286,7 @@ export default function DashPage() {
               </TableHeader>
               <TableBody>
                 {permissions.length > 0 ? (
-                  permissions.map((permission) => (
+                  permissions.slice(0, 5).map((permission) => (
                     <TableRow key={permission.id}>
                       <TableCell className="text-gray-600 font-medium text-lg">
                         {formatTanggalIndo(permission.created_at)}
@@ -366,14 +372,14 @@ export default function DashPage() {
                 </div>
               </div>
 
-              <div className="bg-white/90 shadow-md rounded-lg p-1 flex-1 border justify-center items-center border-white/50 overflow-hidden min-w-0 w-7xl">
+              <div className="bg-white/90 shadow-md rounded-lg p-1 flex-1 border justify-center items-center border-white/50 overflow-hidden min-w-0 ">
                 <ScrollArea className="w-full whitespace-nowrap h-full">
                   <div className="flex w-max space-x-4 p-4 h-full">
                     {assignments.length > 0 ? (
                       assignments.map((note) => (
                         <Card
                           key={note.id}
-                          className="w-[300px] border-l-4 border-l-[#00786E] bg-[#EEEEEE]/40 border-y-0 border-r-0 shadow-sm hover:shadow-md transition-all whitespace-normal"
+                          className="w-[300px] border-l-4 border-l-[#00786E] bg-black border-y-0 border-r-0 shadow-sm hover:shadow-md justify-center items-center  transition-all whitespace-normal"
                         >
                           <CardContent className="p-3 flex flex-col h-full justify-between">
                             <div>
@@ -469,14 +475,14 @@ export default function DashPage() {
                   <TableCell className="flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => processPermit(permit.id, "approved")}
+                      onClick={() => processPermit(permit.id, "PENDING_PIKET")}
                     >
                       Approve
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => processPermit(permit.id, "rejected")}
+                      onClick={() => processPermit(permit.id, "REJECTED")}
                     >
                       Tolak
                     </Button>

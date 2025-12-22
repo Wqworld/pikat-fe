@@ -164,15 +164,14 @@ export default function LicensePage() {
 
       <div className="bg-white/80 rounded-lg p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input value={user?.fullname || ""}  disabled />
+          <div className="">
+            <Label>Nama Petugas</Label>
+            <Input value={user?.fullname || ""} disabled />
+          </div>
 
           <div>
             <Label>NIP Petugas</Label>
-            <Input
-              value={user?.nip || ""}
-              disabled
-              placeholder="Otomatis"
-            />
+            <Input value={user?.nip || ""} disabled placeholder="Otomatis" />
           </div>
 
           <div>

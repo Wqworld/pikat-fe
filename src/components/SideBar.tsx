@@ -106,6 +106,12 @@ export default function SideBar() {
       roles: ["piket"],
     },
     {
+      name: "Persetujuan Surat Izin",
+      href: "/picket-approval",
+      icon: Table,
+      roles: ["piket", "admin"],
+    },
+    {
       name: "Jadwal Piket",
       href: "/picket-schedule",
       icon: Clock,
