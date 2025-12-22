@@ -27,10 +27,9 @@ interface UserAuth {
   roles: string[];
 }
 
-
 export default function SideBar() {
   const pathname = usePathname();
-  const [user, setUser] = useState<UserAuth>();
+  const [user, setUser] = useState<UserAuth | null>(null);
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +55,7 @@ export default function SideBar() {
     const fetchUser = async () => {
       try {
         const response = await api.get("/auth/me");
-        setUser(response.data);
+        setUser(response.data.data);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       }
@@ -98,25 +97,31 @@ export default function SideBar() {
       name: "Dashboard",
       href: "/dashboard",
       icon: Home,
-      roles: ["ADMIN", "GURU_PIKET", "GURU_MAPEL"],
+      roles: ["admin", "piket", "mapel"],
     },
     {
       name: "Laporan Izin",
       href: "/report",
       icon: Table,
-      roles: ["GURU_PIKET"],
+      roles: ["piket"],
+    },
+    {
+      name: "Persetujuan Surat Izin",
+      href: "/picket-approval",
+      icon: Table,
+      roles: ["piket", "admin"],
     },
     {
       name: "Jadwal Piket",
       href: "/picket-schedule",
       icon: Clock,
-      roles: ["GURU_PIKET", "ADMIN"],
+      roles: ["piket", "admin"],
     },
     {
       name: "Buat Surat Izin",
       href: "/license",
       icon: Edit,
-      roles: ["GURU_MAPEL"],
+      roles: ["mapel"],
     },
     {
       name: "Kelola Data",
@@ -136,7 +141,7 @@ export default function SideBar() {
         },
       ],
       icon: Eye,
-      roles: ["ADMIN"],
+      roles: ["admin"],
     },
   ];
 
@@ -293,12 +298,34 @@ export default function SideBar() {
         </nav>
 
         <div className="p-4 my-25 m-2 rounded-2xl">
+          <div className="p-4 mx-3 mb-3 rounded-xl bg-white shadow-sm border">
+            {user && (
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[#007D72]/20 flex items-center justify-center text-[#007D72] font-bold text-lg">
+                  {user.fullname?.charAt(0) || user.username.charAt(0)}
+                </div>
+
+                <div className="flex flex-col leading-tight">
+                  <span className="font-bold text-gray-800">
+                    {user.fullname || user.username}
+                  </span>
+
+                  <span className="text-xs font-semibold text-[#007D72] bg-[#007D72]/10 px-2 py-0.5 rounded-full w-fit">
+                    {user.roles.join(", ")}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 px-4 py-2 w-full  text-slate-600 hover:bg-red-600 hover:text-white rounded-lg transition-all text-xl font-medium duration-500"
+            className="flex items-center justify-center gap-2 px-4 py-2 w-full
+    text-red-600 hover:bg-red-600 hover:text-white
+    rounded-lg transition-all duration-300 font-semibold"
           >
-            <LogOut size={22} />
-            <p className="font-bold">Logout</p>
+            <LogOut size={20} />
+            Logout
           </button>
         </div>
       </aside>

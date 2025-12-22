@@ -59,6 +59,7 @@ interface UserAuth {
   id: number;
   username: string;
   fullname: string;
+  nip: number;
   roles: string[];
 }
 
@@ -90,7 +91,7 @@ export default function LicensePage() {
         setUser(authRes.data.data);
 
         const [studentRes, piketRes, teacherRes] = await Promise.all([
-          api.get("/students"),
+          api.get("/students?limit=10000"),
           api.get("/piket-schedules"),
           api.get("/users/mapel"),
         ]);
@@ -163,31 +164,14 @@ export default function LicensePage() {
 
       <div className="bg-white/80 rounded-lg p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Select
-            onValueChange={(val) => {
-              const teacher = teachers.find((t) => t.id.toString() === val);
-              setSelectedPetugas(teacher || null);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Petugas Piket" />
-            </SelectTrigger>
-            <SelectContent>
-              {todayPiketStaff.map((p) => (
-                <SelectItem key={p.id} value={p.teacher.id.toString()}>
-                  {p.teacher.fullname}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="">
+            <Label>Nama Petugas</Label>
+            <Input value={user?.fullname || ""} disabled />
+          </div>
 
           <div>
             <Label>NIP Petugas</Label>
-            <Input
-              value={selectedPetugas?.nip || ""}
-              disabled
-              placeholder="Otomatis"
-            />
+            <Input value={user?.nip || ""} disabled placeholder="Otomatis" />
           </div>
 
           <div>
