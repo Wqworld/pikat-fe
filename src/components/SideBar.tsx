@@ -48,6 +48,15 @@ export default function SideBar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+    const hasAccess = (itemRoles?: string[]) => {
+      if (!itemRoles || itemRoles.length === 0) return true;
+      if (!user) return false;
+
+      return itemRoles.some((role) => user.roles.includes(role));
+    };
+
+
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -135,13 +144,6 @@ useEffect(() => {
       roles: ["admin"],
     },
   ];
-
-  const hasAccess = (itemRoles?: string[]) => {
-    if (!itemRoles || itemRoles.length === 0) return true;
-    if (!user) return false;
-
-    return itemRoles.some((role) => user.roles.includes(role));
-  };
 
 
   return (
